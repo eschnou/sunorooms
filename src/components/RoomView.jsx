@@ -278,7 +278,7 @@ function RoomView() {
   if (!isDJ) {
     return (
       <div className="room-visitor">
-        <DanceFloor participants={participants} />
+        <DanceFloor participants={participants} isPlaying={isPlaying} />
         <div className="visitor-overlay">
           <h2>🎵 SunoRooms</h2>
           <p>
@@ -299,7 +299,7 @@ function RoomView() {
     <div className="room-dj">
       {/* Left side - Background */}
       <div className="dj-background">
-        <DanceFloor participants={participants} />
+        <DanceFloor participants={participants} isPlaying={isPlaying} />
       </div>
 
       {/* Right side - Control Panel */}

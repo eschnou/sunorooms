@@ -75,3 +75,89 @@
     padding: 1px 6px;
   }
 }
+
+/* ============================================ */
+/* DANCING ANIMATIONS - Same as demo but slower */
+/* ============================================ */
+
+/* Animation principale - balancement du corps */
+@keyframes dance-bounce {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-12px) rotate(-4deg);
+  }
+  75% {
+    transform: translateY(-12px) rotate(4deg);
+  }
+}
+
+/* Animation de la tête - hochement */
+@keyframes head-bob {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(3deg);
+  }
+}
+
+/* Animation jambe gauche */
+@keyframes leg-left-kick {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-12deg);
+  }
+}
+
+/* Animation jambe droite */
+@keyframes leg-right-kick {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(12deg);
+  }
+}
+
+/* Animation cheveux - mouvement fluide */
+@keyframes hair-sway {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+
+/* CLASSE DANCING - Même amplitude que la démo, mais 2x plus lent */
+.dance-floor .character-root.dancing {
+  animation: dance-bounce 1.2s ease-in-out infinite !important;
+}
+
+/* Animation de la tête */
+.dance-floor .character-root.dancing #head {
+  animation: head-bob 0.8s ease-in-out infinite !important;
+  transform-origin: center center;
+}
+
+/* Animation jambe gauche */
+.dance-floor .character-root.dancing #leg-left {
+  animation: leg-left-kick 1.2s ease-in-out infinite !important;
+  transform-origin: 90px 200px;
+}
+
+/* Animation jambe droite */
+.dance-floor .character-root.dancing #leg-right {
+  animation: leg-right-kick 1.2s ease-in-out infinite 0.6s !important;
+  transform-origin: 110px 200px;
+}
+
+/* Animation cheveux */
+.dance-floor .character-root.dancing #hair {
+  animation: hair-sway 1s ease-in-out infinite !important;
+  transform-origin: 100px 50px;
+}
