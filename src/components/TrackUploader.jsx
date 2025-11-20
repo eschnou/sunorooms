@@ -106,15 +106,10 @@ function TrackUploader({ onTrackUpload, disabled }) {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onClick={handleClick}
+      className={`dj-upload-zone ${isDragging ? 'dragging' : ''}`}
       style={{
-        padding: '2rem',
-        border: `2px dashed ${isDragging ? '#646cff' : '#444'}`,
-        borderRadius: '8px',
-        textAlign: 'center',
         cursor: isDisabled ? 'not-allowed' : 'pointer',
-        backgroundColor: isDragging ? '#2a2a3e' : 'transparent',
         opacity: isDisabled ? 0.5 : 1,
-        transition: 'all 0.2s',
       }}
     >
       <input
@@ -128,18 +123,18 @@ function TrackUploader({ onTrackUpload, disabled }) {
 
       {isProcessing ? (
         <>
-          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⏳</div>
-          <p style={{ margin: 0, color: '#888' }}>Processing MP3...</p>
+          <div className="dj-upload-icon">⏳</div>
+          <div className="dj-upload-text">Processing MP3...</div>
         </>
       ) : (
         <>
-          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🎵</div>
-          <p style={{ margin: 0, marginBottom: '0.5rem' }}>
+          <div className="dj-upload-icon">🎵</div>
+          <div className="dj-upload-text">
             {isDragging ? 'Drop MP3 here' : 'Drop MP3 files here or click to upload'}
-          </p>
-          <p style={{ margin: 0, fontSize: '0.8rem', color: '#888' }}>
+          </div>
+          <div className="dj-upload-hint">
             Max size: {formatFileSize(MAX_FILE_SIZE)}
-          </p>
+          </div>
         </>
       )}
     </div>

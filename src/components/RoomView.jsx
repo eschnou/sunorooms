@@ -8,6 +8,7 @@ import Participants from './Participants';
 import TrackUploader from './TrackUploader';
 import Playlist from './Playlist';
 import DJControls from './DJControls';
+import './RoomView.css';
 
 function RoomView() {
   const { slug } = useParams();
@@ -272,89 +273,74 @@ function RoomView() {
     );
   }
 
-  return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ marginBottom: '0.5rem', color: '#fff' }}>🎵 SunoRooms</h1>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
-            marginTop: '1rem',
-          }}
-        >
-          <span style={{ color: '#888' }}>Room:</span>
-          <code
-            style={{
-              backgroundColor: '#2a2a3e',
-              padding: '0.5rem 1rem',
-              borderRadius: '4px',
-              flex: 1,
-              color: '#fff',
-            }}
-          >
-            {slug}
-          </code>
-        </div>
-      </div>
-
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          marginBottom: '1rem',
-        }}
-      >
-        <div
-          style={{
-            width: '10px',
-            height: '10px',
-            borderRadius: '50%',
-            backgroundColor: isConnected ? '#28a745' : '#dc3545',
-          }}
-        />
-        <span style={{ color: '#888' }}>
-          {isConnected ? 'Connected' : 'Connecting...'}
-        </span>
-      </div>
-
-      {isDJ && (
-        <div
-          style={{
-            padding: '1rem',
-            backgroundColor: '#2a2a3e',
-            borderRadius: '4px',
-            marginBottom: '2rem',
-          }}
-        >
-          <p style={{ margin: 0, color: '#ffd700' }}>
-            🎧 You are the DJ for this room
+  // VISITOR VIEW - Full-screen background with minimal overlay
+  if (!isDJ) {
+    return (
+      <div className="room-visitor">
+        <div className="visitor-overlay">
+          <h2>🎵 SunoRooms</h2>
+          <p>
+            <span className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}></span>
+            {isConnected ? 'Connected' : 'Connecting...'}
           </p>
+          <p>
+            Room: <span className="room-code">{slug}</span>
+          </p>
+          <p>Participants: {participants.length}</p>
         </div>
-      )}
-
-      <div style={{ marginBottom: '2rem' }}>
-        <Participants participants={participants} currentUserId={currentUser.userId} />
       </div>
+    );
+  }
 
-      {isDJ && (
-        <div style={{ marginBottom: '2rem' }}>
+  // DJ VIEW - Split screen with control panel
+  return (
+    <div className="room-dj">
+      {/* Left side - Background */}
+      <div className="dj-background"></div>
+
+      {/* Right side - Control Panel */}
+      <div className="dj-panel">
+        {/* Panel Header */}
+        <div className="dj-panel-header">
+          <h1>
+            🎵 SunoRooms
+            <span className="dj-badge">DJ</span>
+          </h1>
+          <div className="room-info">
+            <div>Room: <span className="room-code">{slug}</span></div>
+            <div className="connection-indicator">
+              <span className={`connection-dot ${isConnected ? 'connected' : 'disconnected'}`}></span>
+              {isConnected ? 'Connected' : 'Connecting...'}
+            </div>
+          </div>
+        </div>
+
+        {/* Participants Section */}
+        <div className="dj-panel-section">
+          <h3>👥 Participants: {participants.length}</h3>
+          <Participants participants={participants} currentUserId={currentUser.userId} />
+        </div>
+
+        {/* Upload Section */}
+        <div className="dj-panel-section">
+          <h3>🎵 Upload Music</h3>
           <TrackUploader onTrackUpload={handleTrackUpload} disabled={!isConnected} />
         </div>
-      )}
 
-      <div style={{ marginBottom: '2rem' }}>
-        <Playlist
-          tracks={playlist}
-          isDJ={isDJ}
-          onRemoveTrack={isDJ ? handleRemoveTrack : null}
-        />
-      </div>
+        {/* Playlist Section */}
+        <div className="dj-panel-section">
+          <h3>📋 Playlist</h3>
+          <Playlist
+            tracks={playlist}
+            isDJ={isDJ}
+            currentTrackId={currentTrackId}
+            onRemoveTrack={handleRemoveTrack}
+          />
+        </div>
 
-      {isDJ ? (
-        <div style={{ marginBottom: '2rem' }}>
+        {/* DJ Controls Section */}
+        <div className="dj-panel-section">
+          <h3>🎧 DJ Controls</h3>
           <DJControls
             playlist={playlist}
             currentTrackId={currentTrackId}
@@ -367,45 +353,7 @@ function RoomView() {
             disabled={!isConnected || playlist.length === 0}
           />
         </div>
-      ) : (
-        <>
-          {currentTrackId && (
-            <div
-              style={{
-                padding: '1rem',
-                border: '1px solid #444',
-                borderRadius: '4px',
-                marginBottom: '2rem',
-              }}
-            >
-              <h3 style={{ color: '#fff', marginBottom: '1rem' }}>Now Playing</h3>
-              {playlist.find((t) => t.id === currentTrackId) && (
-                <>
-                  <div style={{ color: '#fff', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-                    {playlist.find((t) => t.id === currentTrackId).name}
-                  </div>
-                  <div style={{ color: '#888', fontSize: '0.9rem' }}>
-                    {isPlaying ? '▶ Playing' : '⏸ Paused'}
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-          <div
-            style={{
-              padding: '1rem',
-              border: '1px solid #444',
-              borderRadius: '4px',
-              textAlign: 'center',
-              color: '#888',
-            }}
-          >
-            <p style={{ margin: 0 }}>
-              Share the room name "<strong style={{ color: '#fff' }}>{slug}</strong>" with friends to invite them!
-            </p>
-          </div>
-        </>
-      )}
+      </div>
     </div>
   );
 }

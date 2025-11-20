@@ -1,0 +1,428 @@
+/* ============================================ */
+/* ROOM VIEW - DJ vs VISITOR LAYOUTS           */
+/* ============================================ */
+
+/* VISITOR LAYOUT - Full-screen background with overlay */
+.room-visitor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.visitor-overlay {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  padding: 20px 30px;
+  border-radius: 15px;
+  color: white;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.visitor-overlay h2 {
+  margin: 0 0 10px 0;
+  font-size: 24px;
+  color: #667eea;
+}
+
+.visitor-overlay p {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #ccc;
+}
+
+.visitor-overlay .room-code {
+  font-weight: bold;
+  color: white;
+  font-size: 18px;
+}
+
+.visitor-overlay .connection-status {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.visitor-overlay .connection-status.connected {
+  background: #51CF66;
+  box-shadow: 0 0 8px #51CF66;
+}
+
+.visitor-overlay .connection-status.disconnected {
+  background: #ff6b6b;
+  box-shadow: 0 0 8px #ff6b6b;
+}
+
+/* DJ LAYOUT - Split screen with control panel */
+.room-dj {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  background: #000;
+}
+
+.dj-background {
+  flex: 0 0 70%;
+  background-image: url('/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.dj-panel {
+  flex: 0 0 30%;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  color: white;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* DJ Panel Header */
+.dj-panel-header {
+  padding: 25px;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.dj-panel-header h1 {
+  margin: 0 0 10px 0;
+  font-size: 28px;
+  color: #667eea;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dj-panel-header .room-info {
+  margin: 10px 0;
+}
+
+.dj-panel-header .room-code {
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  background: rgba(102, 126, 234, 0.2);
+  padding: 8px 15px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.dj-panel-header .connection-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.dj-panel-header .connection-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.dj-panel-header .connection-dot.connected {
+  background: #51CF66;
+  box-shadow: 0 0 10px #51CF66;
+  animation: pulse-green 2s ease-in-out infinite;
+}
+
+.dj-panel-header .connection-dot.disconnected {
+  background: #ff6b6b;
+  box-shadow: 0 0 10px #ff6b6b;
+}
+
+@keyframes pulse-green {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.dj-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+/* DJ Panel Sections */
+.dj-panel-section {
+  padding: 20px 25px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dj-panel-section h3 {
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  color: #667eea;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+
+/* Participants in DJ Panel */
+.dj-participants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dj-participant-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.dj-participant-item:hover {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.dj-participant-emoji {
+  font-size: 24px;
+}
+
+.dj-participant-info {
+  flex: 1;
+}
+
+.dj-participant-name {
+  font-weight: bold;
+  font-size: 14px;
+  color: white;
+}
+
+.dj-participant-badge {
+  background: rgba(102, 126, 234, 0.3);
+  color: #667eea;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: bold;
+  margin-top: 3px;
+  display: inline-block;
+}
+
+/* Upload Zone in DJ Panel */
+.dj-upload-zone {
+  border: 2px dashed rgba(102, 126, 234, 0.5);
+  border-radius: 12px;
+  padding: 30px 20px;
+  text-align: center;
+  background: rgba(102, 126, 234, 0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dj-upload-zone:hover {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.dj-upload-zone.dragging {
+  border-color: #51CF66;
+  background: rgba(81, 207, 102, 0.1);
+}
+
+.dj-upload-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+.dj-upload-text {
+  color: #ccc;
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+.dj-upload-hint {
+  color: #888;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+/* Playlist in DJ Panel */
+.dj-playlist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dj-playlist-empty {
+  text-align: center;
+  color: #666;
+  padding: 30px 20px;
+  font-style: italic;
+}
+
+.dj-track-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.dj-track-item:hover {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.dj-track-item.playing {
+  background: rgba(81, 207, 102, 0.15);
+  border-color: #51CF66;
+}
+
+.dj-track-emoji {
+  font-size: 24px;
+}
+
+.dj-track-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.dj-track-name {
+  font-weight: bold;
+  font-size: 14px;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dj-track-duration {
+  font-size: 12px;
+  color: #888;
+  margin-top: 3px;
+}
+
+.dj-track-remove {
+  background: rgba(255, 107, 107, 0.2);
+  border: none;
+  color: #ff6b6b;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.dj-track-remove:hover {
+  background: rgba(255, 107, 107, 0.3);
+}
+
+/* DJ Controls in Panel */
+.dj-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.dj-control-btn {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.dj-control-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.dj-control-btn:active {
+  transform: translateY(0);
+}
+
+.dj-control-btn.play {
+  background: linear-gradient(135deg, #51CF66 0%, #40c057 100%);
+  color: white;
+}
+
+.dj-control-btn.pause {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: white;
+}
+
+.dj-control-btn.stop {
+  background: linear-gradient(135deg, #adb5bd 0%, #868e96 100%);
+  color: white;
+}
+
+.dj-control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .dj-background {
+    flex: 0 0 60%;
+  }
+
+  .dj-panel {
+    flex: 0 0 40%;
+  }
+}
+
+@media (max-width: 768px) {
+  .room-dj {
+    flex-direction: column;
+  }
+
+  .dj-background {
+    flex: 0 0 40%;
+  }
+
+  .dj-panel {
+    flex: 0 0 60%;
+  }
+
+  .visitor-overlay {
+    top: 10px;
+    left: 10px;
+    padding: 15px 20px;
+  }
+
+  .visitor-overlay h2 {
+    font-size: 20px;
+  }
+}
