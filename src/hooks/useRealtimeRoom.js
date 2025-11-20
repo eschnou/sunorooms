@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { supabase } from '../utils/supabase';
 import { getUserId, generateNickname } from '../utils/userUtils';
 
@@ -41,9 +41,7 @@ export function useRealtimeRoom(slug, isDJ = false) {
         state[key].forEach((presence) => {
           participantsList.push({
             userId: key,
-            nickname: presence.nickname,
-            isDJ: presence.isDJ,
-            joinedAt: presence.joinedAt,
+            ...presence, // Include ALL presence fields (nickname, isDJ, joinedAt, playbackState, etc.)
           });
         });
       });
@@ -92,7 +90,7 @@ export function useRealtimeRoom(slug, isDJ = false) {
   /**
    * Send a broadcast event to all clients in the room
    */
-  const sendBroadcast = (event, payload) => {
+  const sendBroadcast = useCallback((event, payload) => {
     if (!channelRef.current) {
       console.error('[sendBroadcast] Channel not initialized');
       return;
@@ -104,19 +102,37 @@ export function useRealtimeRoom(slug, isDJ = false) {
       event,
       payload,
     });
-  };
+  }, []);
+
+  /**
+   * Update presence data (for DJ to broadcast playback state)
+   */
+  const updatePresence = useCallback((presenceData) => {
+    if (!channelRef.current) {
+      console.error('[updatePresence] Channel not initialized');
+      return;
+    }
+
+    console.log('[Presence] Updating:', presenceData);
+    channelRef.current.track({
+      nickname,
+      isDJ,
+      joinedAt: Date.now(),
+      ...presenceData,
+    });
+  }, [nickname, isDJ]);
 
   /**
    * Subscribe to a broadcast event
    */
-  const onBroadcast = (event, callback) => {
+  const onBroadcast = useCallback((event, callback) => {
     if (!channelRef.current) {
       console.error('[onBroadcast] Channel not initialized');
       return;
     }
 
     channelRef.current.on('broadcast', { event }, callback);
-  };
+  }, []);
 
   return {
     channel: channelRef.current,
@@ -124,6 +140,7 @@ export function useRealtimeRoom(slug, isDJ = false) {
     isConnected,
     sendBroadcast,
     onBroadcast,
+    updatePresence,
     currentUser: {
       userId,
       nickname,

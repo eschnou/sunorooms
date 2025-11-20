@@ -1,5 +1,5 @@
 import { useParams, useSearchParams } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRealtimeRoom } from '../hooks/useRealtimeRoom';
 import { usePlaylist } from '../hooks/usePlaylist';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
@@ -14,7 +14,7 @@ function RoomView() {
   const [searchParams] = useSearchParams();
   const isDJ = searchParams.get('dj') === 'true';
 
-  const { participants, isConnected, currentUser, sendBroadcast, onBroadcast } = useRealtimeRoom(slug, isDJ);
+  const { participants, isConnected, currentUser, sendBroadcast, onBroadcast, updatePresence } = useRealtimeRoom(slug, isDJ);
   const {
     playlist,
     addTrack,
@@ -31,6 +31,18 @@ function RoomView() {
     stop,
   } = useAudioPlayer();
 
+  // Use refs to store audio player functions to avoid useEffect re-runs
+  const playTrackRef = useRef(playTrack);
+  const pauseRef = useRef(pause);
+  const stopRef = useRef(stop);
+
+  // Keep refs updated
+  useEffect(() => {
+    playTrackRef.current = playTrack;
+    pauseRef.current = pause;
+    stopRef.current = stop;
+  }, [playTrack, pause, stop]);
+
   // Listen for track-added broadcasts
   useEffect(() => {
     if (!onBroadcast) return;
@@ -46,25 +58,67 @@ function RoomView() {
   useEffect(() => {
     if (!onBroadcast || isDJ) return; // DJ doesn't listen to broadcasts
 
-    // Listen for play commands
-    onBroadcast('playback-play', ({ payload }) => {
+    console.log('[RoomView] Setting up spectator broadcast listeners');
+
+    // Create handler functions using refs to avoid re-registering listeners
+    const handlePlayBroadcast = ({ payload }) => {
       console.log('[RoomView] Spectator received playback-play:', payload);
       const { trackId, url, startPosition, timestamp } = payload;
-      playTrack(trackId, url, startPosition, timestamp);
-    });
+      playTrackRef.current(trackId, url, startPosition, timestamp);
+    };
 
-    // Listen for pause commands
-    onBroadcast('playback-pause', () => {
-      console.log('[RoomView] Spectator received playback-pause');
-      pause();
-    });
+    const handlePauseBroadcast = ({ payload }) => {
+      console.log('[RoomView] Spectator received playback-pause:', payload);
+      pauseRef.current();
+    };
 
-    // Listen for stop commands
-    onBroadcast('playback-stop', () => {
-      console.log('[RoomView] Spectator received playback-stop');
-      stop();
-    });
-  }, [onBroadcast, isDJ, playTrack, pause, stop]);
+    const handleStopBroadcast = ({ payload }) => {
+      console.log('[RoomView] Spectator received playback-stop:', payload);
+      stopRef.current();
+    };
+
+    // Register listeners (only once when onBroadcast/isDJ changes)
+    onBroadcast('playback-play', handlePlayBroadcast);
+    onBroadcast('playback-pause', handlePauseBroadcast);
+    onBroadcast('playback-stop', handleStopBroadcast);
+
+    // Note: Supabase doesn't provide an off() method for broadcasts
+    // Cleanup happens when channel unsubscribes
+  }, [onBroadcast, isDJ]);
+
+  // Late joiners: Check DJ's presence for current playback state
+  useEffect(() => {
+    if (isDJ || !isConnected || participants.length === 0) return;
+
+    console.log('[RoomView] Spectator checking DJ presence for late joiner sync');
+    console.log('[RoomView] All participants:', participants);
+
+    // Find the DJ in participants
+    const dj = participants.find((p) => p.isDJ);
+    console.log('[RoomView] Found DJ:', dj);
+
+    if (!dj) {
+      console.log('[RoomView] No DJ found in participants');
+      return;
+    }
+
+    if (!dj.playbackState) {
+      console.log('[RoomView] DJ found but no playback state');
+      return;
+    }
+
+    const { playbackState } = dj;
+    console.log('[RoomView] DJ playback state:', playbackState);
+
+    // If DJ is playing, sync playback
+    if (playbackState.isPlaying && playbackState.trackId && playbackState.trackUrl) {
+      const { trackId, trackUrl, startPosition, timestamp } = playbackState;
+      console.log('[RoomView] Late joiner: Starting synced playback');
+      playTrackRef.current(trackId, trackUrl, startPosition, timestamp);
+    } else {
+      console.log('[RoomView] DJ not playing or missing track info');
+    }
+  }, [isDJ, isConnected, participants]);
 
   const handleTrackUpload = async (track, arrayBuffer) => {
     console.log('[RoomView] DJ uploading track to Supabase Storage:', track);
@@ -134,7 +188,10 @@ function RoomView() {
     }
 
     const timestamp = Date.now();
-    const startPosition = isPlaying ? currentTime : 0;
+    // If resuming the same track, start from current position, otherwise start from 0
+    const startPosition = (currentTrackId === trackToPlay.id && currentTime > 0) ? currentTime : 0;
+
+    console.log('[RoomView] Starting playback from position:', startPosition);
 
     // Play locally
     playTrack(trackToPlay.id, trackToPlay.url, startPosition, timestamp);
@@ -146,6 +203,19 @@ function RoomView() {
       startPosition,
       timestamp,
     });
+
+    // Update DJ presence for late joiners
+    if (isDJ) {
+      updatePresence({
+        playbackState: {
+          isPlaying: true,
+          trackId: trackToPlay.id,
+          trackUrl: trackToPlay.url,
+          startPosition,
+          timestamp,
+        },
+      });
+    }
   };
 
   const handlePause = () => {
@@ -156,6 +226,17 @@ function RoomView() {
 
     // Broadcast to all participants
     sendBroadcast('playback-pause', {});
+
+    // Update DJ presence for late joiners
+    if (isDJ) {
+      updatePresence({
+        playbackState: {
+          isPlaying: false,
+          trackId: currentTrackId,
+          pausedAt: currentTime,
+        },
+      });
+    }
   };
 
   const handleSkip = () => {
