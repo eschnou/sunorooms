@@ -54,15 +54,12 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* Force dark mode for the app */
+body {
+  background-color: #242424;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+#root {
+  width: 100%;
 }
